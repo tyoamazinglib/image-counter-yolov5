@@ -30,6 +30,11 @@ from yolov5.utils.plots import Annotator, colors
 from deep_sort.utils.parser import get_config
 from deep_sort.deep_sort import DeepSort
 
+from antares_http import antares
+
+
+antares.setAccessKey('b550d5098f3af6dd:343a0e0482ce897f')
+
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # yolov5 deepsort root directory
 if str(ROOT) not in sys.path:
@@ -108,11 +113,11 @@ def detect(opt):
         model(torch.zeros(1, 3, *imgsz).to(device).type_as(next(model.model.parameters())))  # warmup
     dt, seen = [0.0, 0.0, 0.0, 0.0], 0
     for frame_idx, (path, img, im0s, vid_cap, s) in enumerate(dataset):
-        #cv2.waitKey(20)
+        cv2.waitKey(20)
         t1 = time_sync()
         img = torch.from_numpy(img).to(device)
         img = img.half() if half else img.float()  # uint8 to fp16/32
-        img /=100.0  # 0 - 255 to 0.0 - 1.0
+        img /=100  # 0 - 255 to 0.0 - 1.0
         if img.ndimension() == 3:
             img = img.unsqueeze(0)
         t2 = time_sync()
@@ -198,8 +203,8 @@ def detect(opt):
             if show_vid:
                 global count
                 color=(0,255,0)
-                start_point = (0, h-40)
-                end_point = (w, h-40)
+                start_point = (0, h-85)
+                end_point = (w, h-85)
                 cv2.line(im0, start_point, end_point, color, thickness=2)
                 thickness = 3
                 org = (150, 150)
@@ -239,12 +244,17 @@ def detect(opt):
 def count_obj(box,w,h,id):
     global count,data
     center_coordinates = (int(box[0]+(box[2]-box[0])/2) , int(box[1]+(box[3]-box[1])/2))
-    if int(box[1]+(box[3]-box[1])/2) > (h-40):
+    if int(box[1]+(box[3]-box[1])/2) > (h-85):
         if  id not in data:
             count += 1
             data.append(id)
+            product_count= {
+                'product_countered':count
+            }
+            antares.send(product_count, 'ImageCounter', 'Counter')
+    
 
-
+#print(f'Jumlah produk : {data}')
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--yolo_model', nargs='+', type=str, default='last.pt', help='model.pt path(s)')
@@ -252,8 +262,8 @@ if __name__ == '__main__':
     parser.add_argument('--source', type=str, default='videos/video_2022-09-14_13-06-40.mp4', help='source')  # file/folder, 0 for webcam
     parser.add_argument('--output', type=str, default='inference/output', help='output folder')  # output folder
     parser.add_argument('--imgsz', '--img', '--img-size', nargs='+', type=int, default=[480], help='inference size h,w')
-    parser.add_argument('--conf-thres', type=float, default=0.5, help='object confidence threshold')
-    parser.add_argument('--iou-thres', type=float, default=0.5, help='IOU threshold for NMS')
+    parser.add_argument('--conf-thres', type=float, default=0.2, help='object confidence threshold')
+    parser.add_argument('--iou-thres', type=float, default=0.01, help='IOU threshold for NMS')
     parser.add_argument('--fourcc', type=str, default='mp4v', help='output video codec (verify ffmpeg support)')
     parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     parser.add_argument('--show-vid', action='store_false', help='display tracking video results')
@@ -277,3 +287,4 @@ if __name__ == '__main__':
 
     with torch.no_grad():
         detect(opt)
+print(f'Jumlah produk : {data}')
