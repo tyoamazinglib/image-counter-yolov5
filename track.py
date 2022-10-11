@@ -33,7 +33,7 @@ from deep_sort.deep_sort import DeepSort
 from antares_http import antares
 
 
-antares.setAccessKey('b550d5098f3af6dd:343a0e0482ce897f')
+antares.setAccessKey('65f708123a858355:7084ef0d7c21f8cd')
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # yolov5 deepsort root directory
@@ -251,7 +251,7 @@ def count_obj(box,w,h,id):
             product_count= {
                 'product_countered':count
             }
-            antares.send(product_count, 'ImageCounter', 'Counter')
+            antares.send(product_count, 'ProchizImageCounting', 'Counter')
     
 
 #print(f'Jumlah produk : {data}')
