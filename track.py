@@ -35,6 +35,7 @@ from antares_http import antares
 
 antares.setAccessKey('65f708123a858355:7084ef0d7c21f8cd')
 
+
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # yolov5 deepsort root directory
 if str(ROOT) not in sys.path:
@@ -197,6 +198,12 @@ def detect(opt):
             else:
                 deepsort.increment_ages()
                 LOGGER.info('No detections')
+                sec1 = time.localtime().tm_sec
+                sec2 = time.localtime().tm_sec
+                if sec1 == 2:
+                    if sec2 == 1:
+                        antares.send('Machine off', 'ProchizImageCounting', 'Counter')
+                        
 
             # Stream results
             im0 = annotator.result()
@@ -244,14 +251,21 @@ def detect(opt):
 def count_obj(box,w,h,id):
     global count,data
     center_coordinates = (int(box[0]+(box[2]-box[0])/2) , int(box[1]+(box[3]-box[1])/2))
-    if int(box[1]+(box[3]-box[1])/2) > (h-85):
+    if int(box[1]+(box[3]-box[1])/w) > (h-85):
         if  id not in data:
             count += 1
             data.append(id)
             product_count= {
-                'product_countered':count
+            'product_countered':count
             }
-            antares.send(product_count, 'ProchizImageCounting', 'Counter')
+            seconds = now = time.localtime().tm_sec
+            while seconds == 10:
+                antares.send(count, 'ProchizImageCounting', 'Counter')
+                break
+    
+
+
+
     
 
 #print(f'Jumlah produk : {data}')
