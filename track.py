@@ -118,7 +118,7 @@ def detect(opt):
         t1 = time_sync()
         img = torch.from_numpy(img).to(device)
         img = img.half() if half else img.float()  # uint8 to fp16/32
-        img /=100  # 0 - 255 to 0.0 - 1.0
+        img /=120  # 0 - 255 to 0.0 - 1.0
         if img.ndimension() == 3:
             img = img.unsqueeze(0)
         t2 = time_sync()
@@ -255,9 +255,9 @@ def count_obj(box,w,h,id):
         if  id not in data:
             count += 1
             data.append(id)
-            product_count= {
-            'product_countered':count
-            }
+            # product_count= {
+            # 'product_countered':count
+            # }
             seconds = now = time.localtime().tm_sec
             while seconds == 10:
                 antares.send(count, 'ProchizImageCounting', 'Counter')
@@ -271,7 +271,7 @@ def count_obj(box,w,h,id):
 #print(f'Jumlah produk : {data}')
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--yolo_model', nargs='+', type=str, default='last.pt', help='model.pt path(s)')
+    parser.add_argument('--yolo_model', nargs='+', type=str, default='best.pt', help='model.pt path(s)')
     parser.add_argument('--deep_sort_model', type=str, default='osnet_x0_25')
     parser.add_argument('--source', type=str, default='videos/video_2022-09-14_13-06-40.mp4', help='source')  # file/folder, 0 for webcam
     parser.add_argument('--output', type=str, default='inference/output', help='output folder')  # output folder
